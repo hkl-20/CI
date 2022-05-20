@@ -52,7 +52,7 @@ class Chromosome(object):
         self.fitness = fitness
         return
         
-    def mutate(self, mutationRate, given):
+    def mutate(self, mutationRate, check):
 
         rndNum = np.random.uniform(0, 1)
         isMutated = False
@@ -68,12 +68,12 @@ class Chromosome(object):
                     from_column = np.random.randint(0, 8)
                     to_column = np.random.randint(0, 8)   
 
-                    if(given.values[row1][from_column] == 0 and given.values[row1][to_column] == 0):
-                        if(not given.is_column_duplicate(to_column, self.values[row1][from_column])
-                        and not given.is_column_duplicate(from_column, self.values[row2][to_column])
-                        and not given.is_block_duplicate(row2, to_column, self.values[row1][from_column])
-                        and not given.is_block_duplicate(row1, from_column, self.values[row2][to_column])):
-                        
+                    if(check.values[row1][from_column] == 0 and check.values[row1][to_column] == 0):
+                        if(not check.columnDuplicate(to_column, self.values[row1][from_column])
+                        and not check.columnDuplicate(from_column, self.values[row2][to_column])
+                        and not check.rowDuplicate(row2, self.values[row1][from_column])
+                        and not check.rowDuplicate(row1, self.values[row2][to_column])):
+                    
                             temp = self.values[row2][to_column]
                             self.values[row2][to_column] = self.values[row1][from_column]
                             self.values[row1][from_column] = temp

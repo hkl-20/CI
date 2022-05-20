@@ -19,19 +19,19 @@ class Population(object):
         self.chromosomes = []
         return
 
-    def seed(self, Nc, given):
+    def seed(self, Nc, check):
         self.chromosomes = []
         seedInput = Chromosome()
         seedInput.values = [[[] for j in range(0, 9)] for i in range(0, 9)]
         for row in range(0, 9):
             for column in range(0, 9):
                 for value in range(1, 10):
-                    if(given.values[row][column] == 0):
+                    if(check.values[row][column] == 0):
                         # checking if the value is already in the row, column or block of the puzzle
-                        if not ((given.is_column_duplicate(column, value) or given.is_block_duplicate(row, column, value) or given.is_row_duplicate(row, value))):
+                        if not ((check.columnDuplicate(column, value) or check.blockDuplicate(row, column, value) or check.rowDuplicate(row, value))):
                             seedInput.values[row][column].append(value)
-                    elif(given.values[row][column] != 0):
-                        seedInput.values[row][column].append(given.values[row][column])
+                    elif(check.values[row][column] != 0):
+                        seedInput.values[row][column].append(check.values[row][column])
                         break
        
         for p in range(0, Nc):
@@ -40,14 +40,14 @@ class Population(object):
                 row = np.zeros(9)
                 
                 for j in range(0, 9):
-                    if(given.values[i][j] != 0):
-                        row[j] = given.values[i][j]
-                    elif(given.values[i][j] == 0):
+                    if(check.values[i][j] != 0):
+                        row[j] = check.values[i][j]
+                    elif(check.values[i][j] == 0):
                         row[j] = seedInput.values[i][j][random.randint(0, len(seedInput.values[i][j])-1)]
 
                 while(len(list(set(row))) != 9):
                     for j in range(0, 9):
-                        if(given.values[i][j] == 0):
+                        if(check.values[i][j] == 0):
                             row[j] = seedInput.values[i][j][random.randint(0, len(seedInput.values[i][j])-1)]
 
                 g.values[i] = row

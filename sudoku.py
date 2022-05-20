@@ -9,54 +9,48 @@ random.seed()
 
 sudokuGrid = 9
 
-class Given(Chromosome):
+class Check(Chromosome):
     def __init__(self, values):
         self.values = values
         return
         
-    def is_row_duplicate(self, row, value):
-        for column in range(0, sudokuGrid):
+    def rowDuplicate(self, row, value):
+        for column in range(0, 9):
             if(self.values[row][column] == value):
                return True
         return False
 
-    def is_column_duplicate(self, column, value):
-        for row in range(0, sudokuGrid):
+    def columnDuplicate(self, column, value):
+        for row in range(0, 9):
             if(self.values[row][column] == value):
                return True
         return False
 
-    def is_block_duplicate(self, row, column, value):
+    def blockDuplicate(self, row, column, value):
         i = 3*(int(row/3))
         j = 3*(int(column/3))
 
-        if((self.values[i][j] == value)
-           or (self.values[i][j+1] == value)
-           or (self.values[i][j+2] == value)
-           or (self.values[i+1][j] == value)
-           or (self.values[i+1][j+1] == value)
-           or (self.values[i+1][j+2] == value)
-           or (self.values[i+2][j] == value)
-           or (self.values[i+2][j+1] == value)
-           or (self.values[i+2][j+2] == value)):
-            return True
-        else:
-            return False
+        for x in range(3):
+            for y in range(3):
+                if(self.values[i+x][j+y] == value):
+                    return True
+        return False
 
 class Sudoku(object):
     def __init__(self):
-        self.given = None
+        self.check = None
         return
     
     def load(self, path):
         with open(path, "r") as f:
-            values = np.loadtxt(f).reshape((sudokuGrid, sudokuGrid)).astype(int)
-            self.given = Given(values)
+            sudokuGrid = (9, 9)
+            values = np.loadtxt(f).reshape(sudokuGrid).astype(int)
+            self.check = Check(values)
         return
 
     def save(self, path, solution):
         with open(path, "w") as f:
-            np.savetxt(f, solution.values.reshape(sudokuGrid*sudokuGrid), fmt='%d')
+            np.savetxt(f, solution.values.reshape(9*9), fmt='%d')
         return
         
     def solve(self):
@@ -70,7 +64,7 @@ class Sudoku(object):
         mutation_rate = 0.06
 
         self.population = Population()
-        self.population.seed(Nc, self.given)
+        self.population.seed(Nc, self.check)
 
         stale = 0
         for generation in range(0, Ng):
@@ -107,7 +101,7 @@ class Sudoku(object):
                 child1, child2 = cc.crossover(parent1, parent2, crossover_rate=1.0)
 
                 old_fitness = child1.fitness
-                success = child1.mutate(mutation_rate, self.given)
+                success = child1.mutate(mutation_rate, self.check)
                 child1.fitnessUpdate()
                 if(success):
                     Nm += 1
@@ -115,7 +109,7 @@ class Sudoku(object):
                         phi = phi + 1
 
                 old_fitness = child2.fitness
-                success = child2.mutate(mutation_rate, self.given)
+                success = child2.mutate(mutation_rate, self.check)
                 child2.fitnessUpdate()
                 if(success):
                     Nm += 1
@@ -153,7 +147,7 @@ class Sudoku(object):
 
             if(stale >= 100):
                 print("The population has gone stale. Re-seeding...")
-                self.population.seed(Nc, self.given)
+                self.population.seed(Nc, self.check)
                 stale = 0
                 sigma = 1
                 phi = 0

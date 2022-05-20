@@ -143,6 +143,16 @@ class Board:
                     else:
                         input += 1
         return False
+    
+    def solveNumberSolution(self, row, col):
+        for n in range(1, 10):
+            if self.checkSpace(n, (row, col)):
+                self.board[row][col] = n
+                if self.solve():
+                    return self.board
+                self.board[row][col] = 0
+
+        return False
 
     def solve(self):
         availableSpace = False
@@ -162,14 +172,4 @@ class Board:
                 if self.solve():
                     return self.board
                 self.board[row][col] = 0
-        return False
-
-    def solveNumberSolution(self, row, col):
-        for n in range(1, 10):
-            if self.checkSpace(n, (row, col)):
-                self.board[row][col] = n
-                if self.solve():
-                    return self.board
-                self.board[row][col] = 0
-
         return False
