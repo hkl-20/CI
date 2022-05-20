@@ -8,14 +8,14 @@ class Tournament(object):
         return
         
     def compete(self, chromosomes):
-        c1 = chromosomes[np.random.randint(0, len(chromosomes)-1)]
-        c2 = chromosomes[np.random.randint(0, len(chromosomes)-1)]
-        sel1,sel2 = c1.fitness, c2.fitness
+        a = chromosomes[np.random.randint(0, len(chromosomes)-1)]
+        b = chromosomes[np.random.randint(0, len(chromosomes)-1)]
+        sel1,sel2 = a.fitness, b.fitness
 
         if(sel1 > sel2):
-            fittest, weakest = c1, c2
+            fittest, weakest = a, b
         else:
-            fittest, weakest = c2, c1 
+            fittest, weakest = b, a 
 
         rndNum = np.random.uniform(0, 1)
         selection_rate = 0.80
