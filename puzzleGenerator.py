@@ -1,4 +1,4 @@
-# Code by: Haris Karim Ladhani & Synclair Saqib Samson
+# Code by: Haris Karim Ladhani
 # To create the sudoku puzzle, the following article was used https://medium.com/codex/building-a-sudoku-solver-and-generator-in-python-1-3-f29d3ede6b23
 from matplotlib.style import available
 import numpy as np
@@ -7,14 +7,16 @@ import copy
 class Board:
     def __init__(self, code=None):
         self.resetBoard()
+        
+        self.code = None
+        
         if code:
             self.code = code
             for row in range(9):
                 for col in range(9):
                     self.board[row][col] = int(code[0])
                     code = code[1:]
-        else:
-            self.code = None
+            
 
     def generateBoard(self, difficulty):
         self.board, solutionBoard = self.boardDifficulty(self.randomBoard(), difficulty)
@@ -169,4 +171,5 @@ class Board:
                 if self.solve():
                     return self.board
                 self.board[row][col] = 0
+
         return False
