@@ -1,6 +1,6 @@
 # Code by: Haris Karim Ladhani
 # To create the sudoku puzzle, the following article was used https://medium.com/codex/building-a-sudoku-solver-and-generator-in-python-1-3-f29d3ede6b23
-from matplotlib.style import available
+
 import numpy as np
 import copy
 
@@ -62,11 +62,10 @@ class Board:
             row = np.random.randint(0,8)
             col = np.random.randint(0,8)
             if self.board[row][col] != 0:
-                n = self.board[row][col]
+                temp = self.board[row][col]
                 self.board[row][col] = 0
-
                 if len(self.findSolutions()) != 1:
-                    self.board[row][col] = n
+                    self.board[row][col] = temp
                     continue
                 counter += 1
         return self.board, newBoard
