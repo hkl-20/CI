@@ -2,51 +2,46 @@ import numpy as np
 import random
 random.seed()
 
-gridSize = 9
-
 class Chromosome(object):
     def __init__(self):
-        self.values = np.zeros((gridSize, gridSize), dtype=int)
+        grid = (9, 9)
+        self.values = np.zeros(grid, dtype=int)
         self.fitness = -100000000000000000
         return
 
     def fitnessUpdate(self):
-        row_count = np.zeros(gridSize)
-        column_count = np.zeros(gridSize)
-        block_count = np.zeros(gridSize)
+        row_count = np.zeros(9)
+        column_count = np.zeros(9)
+        block_count = np.zeros(9)
         row_sum = 0
         column_sum = 0
         block_sum = 0
-        for i in range(0, gridSize):
-            for j in range(0, gridSize):
+        for i in range(0, 9):
+            for j in range(0, 9):
                 row_count[self.values[i][j]-1] += 1
 
-            row_sum += (1.0/len(set(row_count)))/gridSize
-            row_count = np.zeros(gridSize)
+            row_sum += (1.0/len(set(row_count)))/9
+            row_count = np.zeros(9)
 
-        for i in range(0, gridSize):
-            for j in range(0, gridSize):
+        for i in range(0, 9):
+            for j in range(0, 9):
                 column_count[self.values[j][i]-1] += 1
 
-            column_sum += (1.0 / len(set(column_count)))/gridSize
-            column_count = np.zeros(gridSize)
+            column_sum += (1.0 / len(set(column_count)))/9
+            column_count = np.zeros(9)
 
-        for i in range(0, gridSize, 3):
-            for j in range(0, gridSize, 3):
-                block_count[self.values[i][j]-1] += 1
-                block_count[self.values[i][j+1]-1] += 1
-                block_count[self.values[i][j+2]-1] += 1
-                
-                block_count[self.values[i+1][j]-1] += 1
-                block_count[self.values[i+1][j+1]-1] += 1
-                block_count[self.values[i+1][j+2]-1] += 1
-                
-                block_count[self.values[i+2][j]-1] += 1
-                block_count[self.values[i+2][j+1]-1] += 1
-                block_count[self.values[i+2][j+2]-1] += 1
+        for i in range(0, 9, 3):
+            for j in range(0, 9, 3):
+                x = 0
+                for k in range(0, 3):
+                    y = 0
+                    for l in range(0, 3):
+                        block_count[self.values[i+x][j+y]-1] += 1
+                        y += 1
+                    x += 1
 
-                block_sum += (1.0/len(set(block_count)))/gridSize
-                block_count = np.zeros(gridSize)
+                block_sum += (1.0/len(set(block_count)))/9
+                block_count = np.zeros(9)
 
         # Calculate overall fitness.
         if (int(row_sum) == 1 and int(column_sum) == 1 and int(block_sum) == 1):
@@ -57,13 +52,12 @@ class Chromosome(object):
         self.fitness = fitness
         return
         
-    def mutate(self, mutation_rate, given):
+    def mutate(self, mutationRate, given):
 
-        r = np.random.uniform(0, 1)
-    
-        success = False
-        if (r < mutation_rate):
-            while(not success):
+        rndNum = np.random.uniform(0, 1)
+        isMutated = False
+        if (rndNum < mutationRate):
+            while(not isMutated):
                 row1 = np.random.randint(0, 8)
                 row2 = np.random.randint(0, 8)
                 row2 = row1
@@ -74,14 +68,14 @@ class Chromosome(object):
                     from_column = np.random.randint(0, 8)
                     to_column = np.random.randint(0, 8)   
 
-                if(given.values[row1][from_column] == 0 and given.values[row1][to_column] == 0):
-                    if(not given.is_column_duplicate(to_column, self.values[row1][from_column])
-                       and not given.is_column_duplicate(from_column, self.values[row2][to_column])
-                       and not given.is_block_duplicate(row2, to_column, self.values[row1][from_column])
-                       and not given.is_block_duplicate(row1, from_column, self.values[row2][to_column])):
-                    
-                        temp = self.values[row2][to_column]
-                        self.values[row2][to_column] = self.values[row1][from_column]
-                        self.values[row1][from_column] = temp
-                        success = True
-        return success
+                    if(given.values[row1][from_column] == 0 and given.values[row1][to_column] == 0):
+                        if(not given.is_column_duplicate(to_column, self.values[row1][from_column])
+                        and not given.is_column_duplicate(from_column, self.values[row2][to_column])
+                        and not given.is_block_duplicate(row2, to_column, self.values[row1][from_column])
+                        and not given.is_block_duplicate(row1, from_column, self.values[row2][to_column])):
+                        
+                            temp = self.values[row2][to_column]
+                            self.values[row2][to_column] = self.values[row1][from_column]
+                            self.values[row1][from_column] = temp
+                            isMutated = True
+        return isMutated
