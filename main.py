@@ -5,7 +5,9 @@ from sudoku import Sudoku
 if __name__ == '__main__':
     board = Board()
     input = ""
-    inputBoard = board.generateBoard("medium")
+
+    #set difficulty level here and it would generate the board accordinly 
+    inputBoard = board.generateBoard("easy")
     print("Board Generated")
     for x in inputBoard[0]:
         input += str(x)

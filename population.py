@@ -49,7 +49,6 @@ class Population(object):
                 genes.values[i] = row
             self.chromosomes.append(genes)
         self.fitnessUpdate()
-        print("Seeding complete.")
         return
 
     def sort(self):

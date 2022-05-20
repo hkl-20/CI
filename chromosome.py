@@ -15,66 +15,76 @@ class Chromosome(object):
         isMutated = False
         if (rndNum < mutationRate):
             while(not isMutated):
-                row1 = np.random.randint(0, 8)
-                row2 = np.random.randint(0, 8)
-                row2 = row1
+                rowStart = np.random.randint(0, 8)
+                rowEnd = rowStart
                 
-                from_column = np.random.randint(0, 8)
-                to_column = np.random.randint(0, 8)
-                while(from_column == to_column):
-                    from_column = np.random.randint(0, 8)
-                    to_column = np.random.randint(0, 8)   
+                columnStart = np.random.randint(0, 8)
+                columnEnd = np.random.randint(0, 8)
+                while(columnStart == columnEnd):
+                    columnStart = np.random.randint(0, 8)
+                    columnEnd = np.random.randint(0, 8)   
 
-                    if(check.values[row1][from_column] == 0 and check.values[row1][to_column] == 0):
-                        if(not check.columnDuplicate(to_column, self.values[row1][from_column])
-                        and not check.columnDuplicate(from_column, self.values[row2][to_column])
-                        and not check.rowDuplicate(row2, self.values[row1][from_column])
-                        and not check.rowDuplicate(row1, self.values[row2][to_column])):
+                    if(check.values[rowStart][columnStart] == 0 and check.values[rowStart][columnEnd] == 0):
+                        if(not check.columnDuplicate(columnEnd, self.values[rowStart][columnStart])
+                        and not check.columnDuplicate(columnStart, self.values[rowEnd][columnEnd])):
+                            temp = self.values[rowEnd][columnEnd]
+                            self.values[rowEnd][columnEnd] = self.values[rowStart][columnStart]
+                            self.values[rowStart][columnStart] = temp
+                            isMutated = True
+
+                        elif (not check.rowDuplicate(rowEnd, self.values[rowStart][columnStart])
+                        and not check.rowDuplicate(rowStart, self.values[rowEnd][columnEnd])):
                     
-                            temp = self.values[row2][to_column]
-                            self.values[row2][to_column] = self.values[row1][from_column]
-                            self.values[row1][from_column] = temp
+                            temp = self.values[rowEnd][columnEnd]
+                            self.values[rowEnd][columnEnd] = self.values[rowStart][columnStart]
+                            self.values[rowStart][columnStart] = temp
                             isMutated = True
         return isMutated
+
     def fitnessUpdate(self):
-        row_count = np.zeros(9)
-        column_count = np.zeros(9)
-        block_count = np.zeros(9)
-        row_sum = 0
-        column_sum = 0
-        block_sum = 0
+
+        sumOfRows = 0
+        totalRow = np.zeros(9)
         for i in range(0, 9):
             for j in range(0, 9):
-                row_count[self.values[i][j]-1] += 1
+                totalRow[self.values[i][j]-1] += 1
 
-            row_sum += (1.0/len(set(row_count)))/9
-            row_count = np.zeros(9)
+            sumOfRows += (1.0/len(set(totalRow)))/9
+            totalRow = np.zeros(9)
 
+        sumOfColumns = 0
+        totalColumn = np.zeros(9)
         for i in range(0, 9):
             for j in range(0, 9):
-                column_count[self.values[j][i]-1] += 1
+                totalColumn[self.values[j][i]-1] += 1
 
-            column_sum += (1.0 / len(set(column_count)))/9
-            column_count = np.zeros(9)
-
+            sumOfColumns += (1.0 / len(set(totalColumn)))/9
+            totalColumn = np.zeros(9)
+        
+        sumOfBlocks = 0
+        totalBlock = np.zeros(9)
         for i in range(0, 9, 3):
             for j in range(0, 9, 3):
                 x = 0
                 for k in range(0, 3):
                     y = 0
                     for l in range(0, 3):
-                        block_count[self.values[i+x][j+y]-1] += 1
+                        totalBlock[self.values[i+x][j+y]-1] += 1
                         y += 1
                     x += 1
 
-                block_sum += (1.0/len(set(block_count)))/9
-                block_count = np.zeros(9)
+                sumOfBlocks += (1.0/len(set(totalBlock)))/9
+                totalBlock = np.zeros(9)
 
         # Calculate overall fitness.
-        if (int(row_sum) == 1 and int(column_sum) == 1 and int(block_sum) == 1):
+        if (int(sumOfRows) == 1):
+            fitness = 1.0
+        elif (int(sumOfColumns) == 1):
+            fitness = 1.0
+        elif (int(sumOfBlocks) == 1):
             fitness = 1.0
         else:
-            fitness = column_sum * block_sum
+            fitness = sumOfColumns * sumOfBlocks
         
         self.fitness = fitness
         return
