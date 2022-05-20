@@ -9,7 +9,7 @@ class Crossover(object):
     def __init__(self):
         return
     
-    def crossover(self, parent1, parent2, crossover_rate):
+    def crossover(self, parent1, parent2, crossoverRate):
         child1 = Chromosome()
         child2 = Chromosome()
         
@@ -18,7 +18,7 @@ class Crossover(object):
 
         rndNum = np.random.uniform(0, 1)
             
-        if (rndNum < crossover_rate):
+        if (rndNum < crossoverRate):
             crossover_point1 = np.random.randint(0, 8)
             crossover_point2 = np.random.randint(1, 9)
 

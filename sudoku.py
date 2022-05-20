@@ -1,13 +1,12 @@
-from functools import cmp_to_key
 import numpy as np
 import random
+
 from chromosome import Chromosome
 from population import Population
-from tournament import Tournament
-from crossover import CycleCrossover
-random.seed()
+from selection import Tournament
+from crossover import Crossover
 
-sudokuGrid = 9
+random.seed()
 
 class Check(Chromosome):
     def __init__(self, values):
@@ -40,95 +39,79 @@ class Sudoku(object):
     def __init__(self):
         self.check = None
         return
-    
-    def load(self, path):
-        with open(path, "r") as f:
-            sudokuGrid = (9, 9)
-            values = np.loadtxt(f).reshape(sudokuGrid).astype(int)
-            self.check = Check(values)
-        return
-
-    def save(self, path, solution):
-        with open(path, "w") as f:
-            np.savetxt(f, solution.values.reshape(9*9), fmt='%d')
-        return
         
     def solve(self):
-        Nc = 1000
-        Ne = int(0.05*Nc)
-        Ng = 1000
-        Nm = 0
+        popSize = 1000
+        numElite = int(0.05*popSize)
+        gens = 1000
+        mutations = 0
 
         phi = 0
         sigma = 1
         mutation_rate = 0.06
+        crossoverRate = 0.8
 
         self.population = Population()
-        self.population.seed(Nc, self.check)
+        self.population.seed(popSize, self.check)
 
         stale = 0
-        for generation in range(0, Ng):
-        
-            print("Generation %d" % generation)
+        for generation in range(0, gens):
 
-            best_fitness = 0.0
-            for c in range(0, Nc):
-                fitness = self.population.chromosomes[c].fitness
+            bestFitness = 0.0
+            for i in range(0, popSize):
+                fitness = self.population.chromosomes[i].fitness
                 if(fitness == 1):
+                    print("Generation %d" % generation)
                     print("Solution found at generation %d!" % generation)
-                    print(self.population.chromosomes[c].values)
-                    return self.population.chromosomes[c]
+                    print(self.population.chromosomes[i].values)
+                    return self.population.chromosomes[i]
 
-                if(fitness > best_fitness):
-                    best_fitness = fitness
+                if(fitness > bestFitness):
+                    bestFitness = fitness
 
-            print("Best Fitness - %f" % best_fitness)
+            print("Generation %d" % generation)
+            print("Best Fitness - %f" % bestFitness)
 
             self.population.sort()
             elites = []
-            for e in range(0, Ne):
+
+            for i in range(0, numElite):
                 elite = Chromosome()
-                elite.values = np.copy(self.population.chromosomes[e].values)
+                elite.values = np.copy(self.population.chromosomes[i].values)
                 elites.append(elite)
 
             next_population = []
-            for count in range(Ne, Nc, 2):
-                t = Tournament()
-                parent1 = t.compete(self.population.chromosomes)
-                parent2 = t.compete(self.population.chromosomes)
+            for count in range(numElite, popSize, 2):
+
+                tournament = Tournament()
+                parent1 = tournament.compete(self.population.chromosomes)
+                parent2 = tournament.compete(self.population.chromosomes)
                 
-                cc = CycleCrossover()
-                child1, child2 = cc.crossover(parent1, parent2, crossover_rate=1.0)
+                cross = Crossover()
+                child1, child2 = cross.crossover(parent1, parent2, crossoverRate)
 
-                old_fitness = child1.fitness
-                success = child1.mutate(mutation_rate, self.check)
-                child1.fitnessUpdate()
-                if(success):
-                    Nm += 1
-                    if(child1.fitness > old_fitness):
-                        phi = phi + 1
-
-                old_fitness = child2.fitness
-                success = child2.mutate(mutation_rate, self.check)
-                child2.fitnessUpdate()
-                if(success):
-                    Nm += 1
-                    if(child2.fitness > old_fitness):
-                        phi = phi + 1
+                for x in child1, child2: 
+                    prevFitness = x.fitness
+                    isMutated = x.mutate(mutation_rate, self.check)
+                    x.fitnessUpdate()
+                    if(isMutated):
+                        mutations += 1
+                        if(prevFitness < x.fitness):
+                            phi = phi + 1
                 
                 next_population.append(child1)
                 next_population.append(child2)
 
-            for e in range(0, Ne):
+            for e in range(0, numElite):
                 next_population.append(elites[e])
 
             self.population.chromosomes = next_population
             self.population.fitnessUpdate()
             
-            if(Nm == 0):
+            if(mutations == 0):
                 phi = 0
             else:
-                phi = phi / Nm
+                phi = phi / mutations
             
             if(phi > 0.2):
                 sigma = sigma/0.998
@@ -136,7 +119,7 @@ class Sudoku(object):
                 sigma = sigma*0.998
 
             mutation_rate = abs(np.random.normal(loc=0.0, scale=sigma, size=None))
-            Nm = 0
+            mutations = 0
             phi = 0
 
             self.population.sort()
@@ -147,10 +130,22 @@ class Sudoku(object):
 
             if(stale >= 100):
                 print("The population has gone stale. Re-seeding...")
-                self.population.seed(Nc, self.check)
+                self.population.seed(popSize, self.check)
                 stale = 0
                 sigma = 1
                 phi = 0
-                Nm = 0
+                mutations = 0
                 mutation_rate = 0.06
         return None
+
+    def save(self, path, solution):
+        with open(path, "w") as f:
+            np.savetxt(f, solution.values.reshape(9*9), fmt='%d')
+        return
+    
+    def load(self, path):
+        with open(path, "r") as f:
+            sudokuGrid = (9, 9)
+            values = np.loadtxt(f).reshape(sudokuGrid).astype(int)
+            self.check = Check(values)
+        return
