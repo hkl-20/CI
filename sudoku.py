@@ -26,12 +26,12 @@ class Check(Chromosome):
         return False
 
     def blockDuplicate(self, row, column, value):
-        i = 3*(int(row/3))
-        j = 3*(int(column/3))
+        r = 3*(int(row/3))
+        c = 3*(int(column/3))
 
         for x in range(3):
             for y in range(3):
-                if(self.values[i+x][j+y] == value):
+                if(self.values[r+x][c+y] == value):
                     return True
         return False
 
@@ -41,20 +41,20 @@ class Sudoku(object):
         return
         
     def solve(self):
-        popSize = 1000
-        numElite = int(0.05*popSize)
-        gens = 1000
-        mutations = 0
-
         phi = 0
         sigma = 1
         mutation_rate = 0.06
         crossoverRate = 0.8
+        mutations = 0
+
+        popSize = 1000
+        numElite = int(0.05*popSize)
+        gens = 1000
 
         self.population = Population()
+
         self.population.seed(popSize, self.check)
 
-        stale = 0
         for generation in range(0, gens):
 
             bestFitness = 0.0
@@ -62,15 +62,14 @@ class Sudoku(object):
                 fitness = self.population.chromosomes[i].fitness
                 if(fitness == 1):
                     print("Generation %d" % generation)
-                    print("Solution found at generation %d!" % generation)
+                    print("Congratulations! The solution was found at ", generation," generation!")
                     print(self.population.chromosomes[i].values)
                     return self.population.chromosomes[i]
 
                 if(fitness > bestFitness):
                     bestFitness = fitness
 
-            print("Generation %d" % generation)
-            print("Best Fitness - %f" % bestFitness)
+            print("Total Generations: ",generation, ":: Best Fitness - ", bestFitness)
 
             self.population.sort()
             elites = []
@@ -108,34 +107,17 @@ class Sudoku(object):
             self.population.chromosomes = next_population
             self.population.fitnessUpdate()
             
+            phi = phi / mutations
             if(mutations == 0):
                 phi = 0
-            else:
-                phi = phi / mutations
             
+            sigma = sigma*0.996
             if(phi > 0.2):
-                sigma = sigma/0.998
-            elif(phi < 0.2):
-                sigma = sigma*0.998
-
-            mutation_rate = abs(np.random.normal(loc=0.0, scale=sigma, size=None))
+                sigma = sigma/0.996
+            
             mutations = 0
             phi = 0
-
-            self.population.sort()
-            if(self.population.chromosomes[0].fitness != self.population.chromosomes[1].fitness):
-                stale = 0
-            else:
-                stale += 1
-
-            if(stale >= 100):
-                print("The population has gone stale. Re-seeding...")
-                self.population.seed(popSize, self.check)
-                stale = 0
-                sigma = 1
-                phi = 0
-                mutations = 0
-                mutation_rate = 0.06
+            mutation_rate = abs(np.random.normal(loc=0.0, scale=sigma, size=None))
         return None
 
     def save(self, path, solution):

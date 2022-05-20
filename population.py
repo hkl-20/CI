@@ -1,7 +1,6 @@
 from functools import cmp_to_key
 import numpy as np
 from chromosome import Chromosome
-from sort import Sort
 import random
 random.seed()
 
@@ -50,7 +49,7 @@ class Population(object):
         return
 
     def sort(self):
-        self.chromosomes.sort(key=cmp_to_key(Sort.fitnessSort))
+        self.chromosomes.sort(key=cmp_to_key(fitnessSort))
         return
         
     def fitnessUpdate(self):

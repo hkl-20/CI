@@ -3,8 +3,6 @@ import numpy as np
 import random
 random.seed()
 
-sudokuGrid = 9
-
 class Crossover(object):
     def __init__(self):
         return
@@ -33,9 +31,9 @@ class Crossover(object):
         return child1, child2
 
     def crossover_rows(self, row1, row2): 
-        child_row1 = np.zeros(sudokuGrid)
-        child_row2 = np.zeros(sudokuGrid)
-        remaining = list(range(1, sudokuGrid+1))
+        child_row1 = np.zeros(9)
+        child_row2 = np.zeros(9)
+        remaining = list(range(1, 9+1))
         cycle = 0
         
         while((0 in child_row1) and (0 in child_row2)):
