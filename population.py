@@ -20,14 +20,18 @@ class Population(object):
                 for value in range(1, 10):
                     if(check.values[row][column] == 0):
                         # checking if the value is already in the row, column or block of the puzzle
-                        if not ((check.columnDuplicate(column, value) or check.blockDuplicate(row, column, value) or check.rowDuplicate(row, value))):
+                        if not (check.columnDuplicate(column, value)):
                             seedInput.values[row][column].append(value)
-                    elif(check.values[row][column] != 0):
+                        elif not (check.blockDuplicate(row, column, value)):
+                            seedInput.values[row][column].append(value)
+                        elif not (check.rowDuplicate(row, value)):
+                            seedInput.values[row][column].append(value)
+                    else:
                         seedInput.values[row][column].append(check.values[row][column])
                         break
        
         for p in range(0, Nc):
-            g = Chromosome()
+            genes = Chromosome()
             for i in range(0, 9):
                 row = np.zeros(9)
                 
@@ -42,8 +46,8 @@ class Population(object):
                         if(check.values[i][j] == 0):
                             row[j] = seedInput.values[i][j][random.randint(0, len(seedInput.values[i][j])-1)]
 
-                g.values[i] = row
-            self.chromosomes.append(g)
+                genes.values[i] = row
+            self.chromosomes.append(genes)
         self.fitnessUpdate()
         print("Seeding complete.")
         return
@@ -59,10 +63,10 @@ class Population(object):
         return
     
 
-def fitnessSort(x, y):
-    if(x.fitness < y.fitness):
-        return 1
-    elif(x.fitness == y.fitness):
+def fitnessSort(x, y): 
+    if(x.fitness == y.fitness):
         return 0
+    elif(x.fitness < y.fitness):
+        return 1
     else:
         return -1
