@@ -5,7 +5,7 @@ random.seed()
 
 sudokuGrid = 9
 
-class CycleCrossover(object):
+class Crossover(object):
     def __init__(self):
         return
     
@@ -26,19 +26,15 @@ class CycleCrossover(object):
                 crossover_point2 = np.random.randint(1, 9)
                 crossover_point1 = np.random.randint(0, 8)
                 if(crossover_point1 > crossover_point2):
-                    temp = crossover_point1
-                    crossover_point1 = crossover_point2
-                    crossover_point2 = temp
-                
+                    crossover_point1, crossover_point2 = crossover_point2, crossover_point1
+                    
             for i in range(crossover_point1, crossover_point2):
                 child1.values[i], child2.values[i] = self.crossover_rows(child1.values[i], child2.values[i])
-
         return child1, child2
 
     def crossover_rows(self, row1, row2): 
         child_row1 = np.zeros(sudokuGrid)
         child_row2 = np.zeros(sudokuGrid)
-
         remaining = list(range(1, sudokuGrid+1))
         cycle = 0
         
@@ -51,16 +47,15 @@ class CycleCrossover(object):
                 child_row2[index] = row2[index]
                 next = row2[index]
                 
-                while(next != start): 
+                while not(next == start): 
                     index = self.find_value(row1, next)
                     child_row1[index] = row1[index]
                     remaining.remove(row1[index])
                     child_row2[index] = row2[index]
                     next = row2[index]
-
                 cycle += 1
 
-            else:
+            elif (cycle % 2 != 0):
                 index = self.find_unused(row1, remaining)
                 start = row1[index]
                 remaining.remove(row1[index])
@@ -68,7 +63,7 @@ class CycleCrossover(object):
                 child_row2[index] = row1[index]
                 next = row2[index]
                 
-                while(next != start):
+                while not(next == start):
                     index = self.find_value(row1, next)
                     child_row1[index] = row2[index]
                     remaining.remove(row1[index])
