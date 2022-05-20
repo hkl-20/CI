@@ -1,18 +1,11 @@
 from functools import cmp_to_key
 import numpy as np
 from chromosome import Chromosome
+from sort import Sort
 import random
 random.seed()
 
 #the value 9, represets the sudoku grid, the value of input digits allowed
-
-def fitnessSort(x, y):
-    if(x.fitness < y.fitness):
-        return 1
-    elif(x.fitness == y.fitness):
-        return 0
-    else:
-        return -1
 
 class Population(object):
     def __init__(self):
@@ -57,7 +50,7 @@ class Population(object):
         return
 
     def sort(self):
-        self.chromosomes.sort(key=cmp_to_key(fitnessSort))
+        self.chromosomes.sort(key=cmp_to_key(Sort.fitnessSort))
         return
         
     def fitnessUpdate(self):
